@@ -25,14 +25,16 @@ struct XineramaScreenInfoCompat {
 using XineramaQueryScreensFn = XineramaScreenInfoCompat* (*)(Display*, int*);
 
 std::vector<Rect> via_xinerama(Display* dpy) {
-    void* h = dlopen("libXinerama.so.1", RTLD_NOW | RTLD_LOCAL);
+    // NOTA: nunca dar dlclose nesta biblioteca. A primeira chamada de
+    // XineramaQueryScreens registra uma extensao no Display cujo hook
+    // close_display aponta para codigo dentro da libXinerama; se a
+    // biblioteca for descarregada, XCloseDisplay pula para um endereco
+    // invalido no shutdown (SIGSEGV). O handle vive ate o fim do processo.
+    static void* h = dlopen("libXinerama.so.1", RTLD_NOW | RTLD_LOCAL);
     if (!h) return {};
-    auto fn = reinterpret_cast<XineramaQueryScreensFn>(
+    static const auto fn = reinterpret_cast<XineramaQueryScreensFn>(
         dlsym(h, "XineramaQueryScreens"));
-    if (!fn) {
-        dlclose(h);
-        return {};
-    }
+    if (!fn) return {};
     int n = 0;
     XineramaScreenInfoCompat* info = fn(dpy, &n);
     std::vector<Rect> out;
@@ -43,7 +45,6 @@ std::vector<Rect> via_xinerama(Display* dpy) {
                                info[i].height});
         XFree(info);
     }
-    dlclose(h);
     return out;
 }
 
