@@ -1,0 +1,15 @@
+# Build
+/build/
+*.o
+*.obj
+*.so
+*.a
+
+# Python
+__pycache__/
+*.py[cod]
+
+# IDE / SO
+.vscode/
+.idea/
+*~

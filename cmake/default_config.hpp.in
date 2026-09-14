@@ -1,0 +1,8 @@
+// Gerado pelo CMake a partir de config/lavoe.lua. Nao edite.
+#pragma once
+
+namespace lv {
+
+inline constexpr const char* kEmbeddedDefaultConfig = @LAVOE_DEFAULT_CONFIG@;
+
+} // namespace lv
