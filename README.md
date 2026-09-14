@@ -9,6 +9,11 @@ em **C++20 + Lua 5.4** — uma homenagem a **Héctor Lavoe** (1946–1993),
 "El Cantante", uma das grandes vozes que popularizaram a Salsa e demais
 tradições rítmicas da América Latina e Caribe no Planeta Terra.
 
+<p align="center">
+  <img src="docs/screenshot.png" alt="Lavoe Salsa — forma de onda sobre o wallpaper" width="85%">
+</p>
+<p align="center"><em>Modo waveform (ruído rosa) desenhado sobre o wallpaper — também há modo de barras de espectro.</em></p>
+
 ---
 
 ## Português
