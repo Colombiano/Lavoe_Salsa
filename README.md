@@ -28,9 +28,8 @@
 </p>
 
 Visualizador de áudio em overlay sobre o wallpaper do desktop Linux, escrito
-em **C++20 + Lua 5.4** — uma homenagem a **Héctor Lavoe** (1946–1993),
-"El Cantante", uma das grandes vozes que popularizaram a Salsa e demais
-tradições rítmicas da América Latina e Caribe no Planeta Terra.
+em **C++20 e Lua 5.4** — ele também é uma homenagem a **Héctor Lavoe** (1946–1993),
+"El Cantante",uma das grandes vozes que popularizaram a Salsa e demais tradições rítmicas da América Latina e Caribe no Planeta Terra.
 
 <p align="center">
   <img src="docs/screenshot.png" alt="Lavoe Salsa — forma de onda sobre o wallpaper" width="85%">
@@ -46,9 +45,8 @@ tradições rítmicas da América Latina e Caribe no Planeta Terra.
 Lavoe Salsa é o sucessor espiritual do [glava](https://github.com/jarcode-foss/glava):
 em vez de um programa de visualização qualquer, ele desenha o espectro do
 áudio **diretamente sobre o papel de parede**, como se fosse parte do desktop.
-Barras finas e elegantes dançando na base da tela enquanto você escuta salsa
-(no ytm-player, no mpv, no navegador — tanto faz: o áudio do **sistema
-inteiro** é capturado).
+Barras finas e elegantes, inspiradas no Ardour,  dançam na base da tela enquanto você escuta salsa
+(no ytm-player, no mpv, no navegador — tanto faz: o áudio do **sistema inteiro** é capturado).
 
 Foi escrito **do zero** em C++20 moderno, com:
 
@@ -63,7 +61,7 @@ Foi escrito **do zero** em C++20 moderno, com:
   scriptar cores por frame.
 
 **Transparência:** este projeto *não* é um fork do glava nem de nenhum outro
-visualizador — só compartilha a ideia. Todo o código é original.
+visualizador — só compartilha a ideia.Todo o código é original.
 
 ### Requisitos
 
@@ -72,7 +70,7 @@ visualizador — só compartilha a ideia. Todo o código é original.
 `pybind11-dev`, `python3-dev`, `python3-numpy` (bindings),
 `python3-matplotlib` (ferramenta de plot).
 
-Recomendado: desktop com compositor ativo (Cinnamon/muffin, KDE/KWin etc.)
+Recomendado: Desktop com compositor ativo (Cinnamon/muffin, KDE/KWin etc.)
 para a transparência ARGB funcionar.
 
 ### Build
@@ -129,11 +127,7 @@ return {
 }
 ```
 
-No modo `"waveform"` o desenho é uma forma de onda em domínio do tempo
-(estilo osciloscópio, inspirada na waveform do Ardour): cada coluna de 1px
-da janela recebe um segmento vertical espelhado em torno do eixo central,
-com altura proporcional ao pico da amplitude; a cor segue o gradiente por
-amplitude.
+No modo `"waveform"` o desenho é uma forma de onda em domínio do tempo (estilo osciloscópio, inspirada na waveform do Ardour): cada coluna de 1px da janela recebe um segmento vertical espelhado em torno do eixo central, com altura proporcional ao pico da amplitude; a cor segue o gradiente por amplitude.
 
 ### Ferramentas
 
@@ -161,8 +155,7 @@ lavoe-salsa --dump | python3 tools/plot_spectrum.py
 Lavoe Salsa es el sucesor espiritual de
 [glava](https://github.com/jarcode-foss/glava): en lugar de un visualizador
 cualquiera, dibuja el espectro del audio **directamente sobre el fondo de
-pantalla**, como si fuera parte del escritorio. Barras finas y elegantes
-bailando al pie de la pantalla mientras suena salsa (en ytm-player, mpv, el
+pantalla**, como si fuera parte del escritorio. Barras finas y elegantes bailando al pie de la pantalla mientras suena salsa (en ytm-player, mpv, el
 navegador — da igual: se captura el audio de **todo el sistema**).
 
 Escrito **desde cero** en C++20 moderno:
