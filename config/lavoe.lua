@@ -29,8 +29,25 @@ return {
         margem_lados = 12,
     },
 
-    -- Numero de barras do espectro
+    -- Numero de barras do espectro (modo "bars")
     barras = 56,
+
+    -- ---------------------------------------------------------------------
+    -- Modo de exibicao:
+    --   "bars"     -> espectro em barras (FFT), o classico
+    --   "waveform" -> forma de onda em dominio do tempo (estilo
+    --                 osciloscopio/DAW, como a waveform do Ardour):
+    --                 cada coluna de 1px recebe um segmento vertical
+    --                 espelhado em torno do eixo central, com altura
+    --                 proporcional ao pico da amplitude naquela coluna.
+    -- ---------------------------------------------------------------------
+    mode = "bars",
+
+    -- waveform: ganho de amplitude (escala), espelhamento em torno do eixo
+    -- e cor da linha de eixo central (semi-opaca, ~60%).
+    waveform_scale  = 1.0,
+    waveform_mirror = true,
+    axis_color      = "#d5c4a1",
 
     -- Largura de cada barra (px) e espaco entre barras (px).
     -- Barras finas e elegantes, estilo medidor minimalista.

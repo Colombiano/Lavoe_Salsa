@@ -81,6 +81,7 @@ Destaques:
 ```lua
 return {
     geometry = { monitor = 0, w = 1100, h = 280, margem_base = 70 },
+    mode = "bars",  -- "bars" (espectro) ou "waveform" (forma de onda, estilo DAW)
     barras = 56,
     largura_barra = 6,   -- barras finas, estilo medidor
     espacamento   = 3,
@@ -92,10 +93,19 @@ return {
         { 1.00, "#cc241d" },  -- vermelho
     },
     suavizacao = { ataque = 0.65, queda = 0.18, piso_ruido = 0.02 },
-    -- cores por barra via Lua (prioridade sobre o gradiente):
+    -- waveform: ganho, espelhamento no eixo central e cor do eixo
+    waveform_scale = 1.0, waveform_mirror = true, axis_color = "#d5c4a1",
+    -- cores por barra via Lua (prioridade sobre o gradiente; funciona
+    -- nos dois modos — recebe o indice da coluna/barra):
     -- bar_color = function(i, nivel, t) return {r=, g=, b=} end,
 }
 ```
+
+No modo `"waveform"` o desenho é uma forma de onda em domínio do tempo
+(estilo osciloscópio, inspirada na waveform do Ardour): cada coluna de 1px
+da janela recebe um segmento vertical espelhado em torno do eixo central,
+com altura proporcional ao pico da amplitude; a cor segue o gradiente por
+amplitude.
 
 ### Ferramentas
 
@@ -159,6 +169,12 @@ los valores por defecto comentados. Prueba el audio con cualquier reproductor:
 speaker-test -c 2 -t wav -l 1 -D pulse
 ```
 
+Además del espectro de barras (`mode = "bars"`, valor por defecto), hay un
+modo **waveform** (`mode = "waveform"`): forma de onda en dominio del
+tiempo, estilo osciloscopio/DAW — cada columna de 1px dibuja un segmento
+vertical espejado alrededor del eje central, con la cor del gradiente por
+amplitud (opciones: `waveform_scale`, `waveform_mirror`, `axis_color`).
+
 ### Limitaciones conocidas
 
 - Solo funciona en X11 (usa XRender directamente); Wayland queda para el futuro.
@@ -215,6 +231,12 @@ default commented out. Test the audio with any player:
 ```bash
 speaker-test -c 2 -t wav -l 1 -D pulse
 ```
+
+Besides the bar spectrum (`mode = "bars"`, the default), there is a
+**waveform** mode (`mode = "waveform"`): a time-domain oscilloscope/DAW-style
+waveform — each 1px column draws a vertical segment mirrored around the
+center axis, colored by amplitude via the gradient (options:
+`waveform_scale`, `waveform_mirror`, `axis_color`).
 
 ### Known limitations
 

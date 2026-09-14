@@ -81,6 +81,10 @@ XRenderer::XRenderer(const Config& cfg) : dpy_() {
     bar_w_ = cfg.bar_width;
     bar_gap_ = cfg.bar_gap;
     pad_ = cfg.padding;
+    mode_ = cfg.mode;
+    wave_scale_ = cfg.waveform_scale;
+    wave_mirror_ = cfg.waveform_mirror;
+    axis_color_ = cfg.axis_color;
 
     // limpa uma vez (garante fundo transparente desde o primeiro map)
     XRenderColor clear{0, 0, 0, 0};
@@ -117,38 +121,66 @@ void XRenderer::set_net_wm_state() {
                     reinterpret_cast<unsigned char*>(states), 4);
 }
 
-void XRenderer::fill(int x, int y, unsigned w, unsigned h, Color c) {
+void XRenderer::fill(int x, int y, unsigned w, unsigned h, Color c,
+                     unsigned short alpha) {
     XRenderColor xc{static_cast<unsigned short>(c.r * 65535.f + 0.5f),
                     static_cast<unsigned short>(c.g * 65535.f + 0.5f),
                     static_cast<unsigned short>(c.b * 65535.f + 0.5f),
-                    65535};
+                    alpha};
     XRenderFillRectangle(dpy_.get(), PictOpSrc, pic_.get(), &xc, x, y, w, h);
 }
 
+// Cor de uma coluna por amplitude: gradiente (kPerStrip) ou hook Lua.
+// Compartilhado pelos dois modos de desenho.
 template <ColorMap M>
-void XRenderer::do_render(std::span<const float> levels, const M& map, float t) {
+Color XRenderer::column_color(const M& map, std::size_t col, float level,
+                              float t) const {
+    if constexpr (M::kPerStrip) {
+        return map.sample(level);
+    } else {
+        return map.bar_color(static_cast<int>(col), level, t);
+    }
+}
+
+// Waveform estilo osciloscopio/DAW: cada coluna de 1px recebe um segmento
+// vertical centrado no eixo, com altura proporcional ao pico da amplitude
+// (espelhado por padrao, como a forma de onda do Ardour).
+template <ColorMap M>
+void XRenderer::draw_waveform(std::span<const float> levels, const M& map,
+                              float t) {
     Display* dpy = dpy_.get();
+    const int cy = win_h_ / 2;
+    constexpr unsigned short kAxisAlpha = 39321;  // ~60% opaco
 
-    // Redimensionamento pelo usuario? (a janela e redimensionavel)
-    while (XPending(dpy)) {
-        XEvent ev;
-        XNextEvent(dpy, &ev);
-        if (ev.type == ConfigureNotify) {
-            win_w_ = ev.xconfigure.width;
-            win_h_ = ev.xconfigure.height;
-        }
+    // eixo central (1px)
+    XRenderColor axc{static_cast<unsigned short>(axis_color_.r * 65535.f + 0.5f),
+                     static_cast<unsigned short>(axis_color_.g * 65535.f + 0.5f),
+                     static_cast<unsigned short>(axis_color_.b * 65535.f + 0.5f),
+                     kAxisAlpha};
+    XRenderFillRectangle(dpy, PictOpSrc, pic_.get(), &axc, 0, cy,
+                         static_cast<unsigned>(win_w_), 1);
+
+    const int max_amp = std::max(1, win_h_ / 2 - 1);
+    const std::size_t n = levels.size();
+    const std::size_t w = static_cast<std::size_t>(std::max(1, win_w_));
+    for (int x = 0; x < win_w_; ++x) {
+        const std::size_t ci = static_cast<std::size_t>(x) * n / w;
+        const float a = std::clamp(levels[ci] * wave_scale_, 0.f, 1.f);
+        const int bh = static_cast<int>(a * static_cast<float>(max_amp) + 0.5f);
+        if (bh < 1) continue;
+        const Color c = column_color(map, ci, a, t);
+        if (wave_mirror_)
+            fill(x, cy - bh, 1, static_cast<unsigned>(2 * bh), c);
+        else
+            fill(x, cy - bh, 1, static_cast<unsigned>(bh), c);
     }
+}
 
-    // fundo totalmente transparente
-    XRenderColor clear{0, 0, 0, 0};
-    XRenderFillRectangle(dpy, PictOpSrc, pic_.get(), &clear, 0, 0,
-                         static_cast<unsigned>(win_w_),
-                         static_cast<unsigned>(win_h_));
-    if (levels.empty()) {
-        XFlush(dpy);
-        return;
-    }
-
+// Barras do espectro: retangulos finos alinhados na base, com gradiente
+// vertical (faixas de 1px mescladas da LUT) ou cor plana do hook Lua.
+template <ColorMap M>
+void XRenderer::draw_bars(std::span<const float> levels, const M& map,
+                          float t) {
     const int n = std::min<int>(static_cast<int>(levels.size()), bars_);
     const int total_w = n * bar_w_ + (n - 1) * bar_gap_;
     const int x0 = (win_w_ - total_w) / 2;
@@ -181,6 +213,40 @@ void XRenderer::do_render(std::span<const float> levels, const M& map, float t) 
                  static_cast<unsigned>(bh), map.bar_color(i, level, t));
         }
     }
+}
+
+template <ColorMap M>
+void XRenderer::do_render(std::span<const float> levels, const M& map, float t) {
+    Display* dpy = dpy_.get();
+
+    // Redimensionamento pelo usuario? (a janela e redimensionavel)
+    while (XPending(dpy)) {
+        XEvent ev;
+        XNextEvent(dpy, &ev);
+        if (ev.type == ConfigureNotify) {
+            win_w_ = ev.xconfigure.width;
+            win_h_ = ev.xconfigure.height;
+        }
+    }
+
+    // fundo totalmente transparente
+    XRenderColor clear{0, 0, 0, 0};
+    XRenderFillRectangle(dpy, PictOpSrc, pic_.get(), &clear, 0, 0,
+                         static_cast<unsigned>(win_w_),
+                         static_cast<unsigned>(win_h_));
+    if (levels.empty()) {
+        XFlush(dpy);
+        return;
+    }
+
+    if (!levels.empty()) {
+        if (mode_ == Mode::Waveform) {
+            draw_waveform(levels, map, t);
+        } else {
+            draw_bars(levels, map, t);
+        }
+    }
+
     // Nudge de recomposite: o muffin (compositor do Cinnamon) nem sempre
     // recomposita janelas BELOW/SKIP_* em damage de conteudo puro (XRender/
     // XPutImage). Um XMoveWindow de 1px alternado forca a recomposicao a

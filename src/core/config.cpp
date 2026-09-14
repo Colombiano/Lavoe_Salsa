@@ -1,5 +1,6 @@
 #include "core/config.hpp"
 
+#include <algorithm>
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
@@ -39,6 +40,14 @@ struct TableView {
         lua_getfield(L, idx, key);
         std::optional<double> r;
         if (lua_isnumber(L, -1)) r = lua_tonumber(L, -1);
+        lua_pop(L, 1);
+        return r;
+    }
+
+    std::optional<bool> boolean(const char* key) const {
+        lua_getfield(L, idx, key);
+        std::optional<bool> r;
+        if (lua_isboolean(L, -1)) r = lua_toboolean(L, -1) != 0;
         lua_pop(L, 1);
         return r;
     }
@@ -143,6 +152,20 @@ Config load_config(LuaState& lua, const std::optional<std::string>& cli_path) {
                          : TableView::global(L);
 
     if (auto geo = root.table("geometry")) parse_geometry(*geo, cfg);
+    if (auto mode = root.str("mode")) {
+        if (*mode == "waveform") cfg.mode = Mode::Waveform;
+        else if (*mode == "bars") cfg.mode = Mode::Bars;
+        else std::fprintf(stderr, "lavoe-salsa: modo '%s' desconhecido; usando 'bars'\n",
+                          mode->c_str());
+    }
+    if (auto v = root.num("waveform_scale"))
+        cfg.waveform_scale = std::clamp(static_cast<float>(*v), 0.1f, 8.f);
+    if (auto v = root.boolean("waveform_mirror")) cfg.waveform_mirror = *v;
+    if (auto v = root.str("axis_color")) {
+        if (auto hex = try_hex_rgb(*v)) cfg.axis_color = from_hex(*hex);
+        else std::fprintf(stderr, "lavoe-salsa: axis_color '%s' invalido\n",
+                          v->c_str());
+    }
     if (auto v = root.num("barras")) cfg.bars = static_cast<int>(*v);
     if (auto v = root.num("largura_barra")) cfg.bar_width = static_cast<int>(*v);
     if (auto v = root.num("espacamento")) cfg.bar_gap = static_cast<int>(*v);

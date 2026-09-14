@@ -12,6 +12,11 @@
 
 namespace lv {
 
+enum class Mode {
+    Bars,      // espectro em barras (FFT) — padrao
+    Waveform,  // forma de onda em dominio do tempo (estilo osciloscopio)
+};
+
 struct Config {
     // geometria
     int monitor = 0;
@@ -19,6 +24,12 @@ struct Config {
     int w = 1100, h = 280;
     int bottom_margin = 70;
     int padding = 12;
+
+    // modo de exibicao
+    Mode mode = Mode::Bars;
+    float waveform_scale = 1.0f;            // ganho de amplitude do waveform
+    bool waveform_mirror = true;            // espelhar a onda no eixo central
+    Color axis_color = from_hex(0xd5c4a1);  // eixo central (alpha ~60%)
 
     // barras
     int bars = 56;

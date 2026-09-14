@@ -73,6 +73,27 @@ public:
     [[nodiscard]] std::size_t bars() const { return bars_; }
     [[nodiscard]] float sample_rate() const { return rate_; }
 
+    // Modo waveform: amplitudes em dominio do tempo (sem FFT).
+    // Cada coluna recebe o pico (max |amostra|) do grupo de amostras que
+    // ela representa — estilo min/max por pixel dos DAWs (Ardour).
+    // Retorna span com exatamente `ncols` amplitudes (0..1).
+    std::span<const float> analyze_wave(std::span<const float> pcm,
+                                        std::size_t ncols) {
+        if (ncols == 0) return {};
+        wave_.resize(ncols);
+        const std::size_t n = pcm.size();
+        for (std::size_t c = 0; c < ncols; ++c) {
+            const std::size_t lo = c * n / ncols;
+            std::size_t hi = (c + 1) * n / ncols;
+            if (hi <= lo) hi = lo + 1;  // pelo menos 1 amostra por coluna
+            float peak = 0.f;
+            for (std::size_t i = lo; i < hi && i < n; ++i)
+                peak = std::max(peak, std::abs(pcm[i]));
+            wave_[c] = peak;
+        }
+        return wave_;
+    }
+
     void set_sample_rate(float rate) {
         if (rate > 0.f && std::abs(rate - rate_) > 1.f) {
             rate_ = rate;
@@ -107,6 +128,7 @@ private:
     std::vector<float> hann_;
     std::vector<float> raw_;
     std::vector<float> prev_;
+    std::vector<float> wave_;  // amplitudes do modo waveform
     std::vector<std::size_t> lo_, hi_;
 };
 

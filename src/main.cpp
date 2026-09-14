@@ -76,7 +76,19 @@ void run_frames(Src& src, Ren& ren, const Map& cmap, Analyzer& dsp,
 
         const std::size_t got = src.read_latest(pcm);
         if (got > 0) {
-            const std::span<const float> heights = dsp.analyze(pcm);
+            // Selecao do modo: barras (FFT) ou waveform (dominio do tempo,
+            // uma amplitude por coluna de pixels do renderer).
+            std::size_t ncols = cfg.bars;
+            if constexpr (requires(Ren& r) {
+                              { r.columns() } -> std::convertible_to<std::size_t>;
+                          }) {
+                ncols = ren.columns();
+            } else if (cfg.mode == lv::Mode::Waveform) {
+                ncols = static_cast<std::size_t>(cfg.w);
+            }
+            const std::span<const float> heights =
+                cfg.mode == lv::Mode::Waveform ? dsp.analyze_wave(pcm, ncols)
+                                               : dsp.analyze(pcm);
             const float t = std::chrono::duration<float>(clock::now() - t0).count();
             if (dump) {
                 print_csv(heights);

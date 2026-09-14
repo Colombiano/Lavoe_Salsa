@@ -8,6 +8,7 @@
 // - Processa ConfigureNotify: a janela e redimensionavel com o mouse.
 #pragma once
 
+#include <algorithm>
 #include <span>
 #include "core/config.hpp"
 #include "core/geometry.hpp"
@@ -30,9 +31,24 @@ public:
     template <ColorMap M>
     void do_render(std::span<const float> levels, const M& map, float t);
 
+    // Numero de colunas a renderizar (largura atual da janela). Refinamento
+    // opcional do concept BarRenderer: run_frames usa via if constexpr para
+    // pedir ao DSP exatamente uma amplitude por pixel.
+    [[nodiscard]] std::size_t columns() const {
+        return static_cast<std::size_t>(std::max(1, win_w_));
+    }
+
 private:
-    void fill(int x, int y, unsigned w, unsigned h, Color c);
+    void fill(int x, int y, unsigned w, unsigned h, Color c,
+              unsigned short alpha = 65535);
     void set_net_wm_state();
+    template <ColorMap M>
+    void draw_waveform(std::span<const float> levels, const M& map, float t);
+    template <ColorMap M>
+    void draw_bars(std::span<const float> levels, const M& map, float t);
+    template <ColorMap M>
+    Color column_color(const M& map, std::size_t col, float level,
+                       float t) const;
 
     XDisplay dpy_;
     XWindow win_;
@@ -41,6 +57,10 @@ private:
     int win_w_ = 0, win_h_ = 0;
     int win_x_ = 0, win_y_ = 0;  // para o nudge de recomposite
     int bars_ = 0, bar_w_ = 0, bar_gap_ = 0, pad_ = 0;
+    Mode mode_ = Mode::Bars;
+    float wave_scale_ = 1.f;
+    bool wave_mirror_ = true;
+    Color axis_color_{};
 };
 
 } // namespace lv
