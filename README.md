@@ -4,6 +4,29 @@
 
 **🇧🇷 Português** | [🇪🇸 Español](#español) | [🇬🇧 English](#english)
 
+<p align="center">
+  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"/></a>
+  <a href="https://isocpp.org/"><img src="https://img.shields.io/badge/C%2B%2B-20-00599C?logo=c%2B%2B&logoColor=white" alt="C++20"/></a>
+  <a href="https://www.lua.org/"><img src="https://img.shields.io/badge/Lua-5.4-2C2D72?logo=lua&logoColor=white" alt="Lua 5.4"/></a>
+  <a href="https://www.kernel.org/"><img src="https://img.shields.io/badge/Platform-Linux%20X11-FCC624?logo=linux&logoColor=black" alt="Linux X11"/></a>
+</p>
+
+<p align="center">
+  <strong>Stack / Núcleo</strong><br/>
+  <a href="https://www.freedesktop.org/wiki/Software/PulseAudio/"><img src="https://img.shields.io/badge/PulseAudio-captura%20do%20monitor-FF6F00" alt="PulseAudio"/></a>
+  <a href="https://www.fftw.org/"><img src="https://img.shields.io/badge/FFTW3-FFT%20single--precision-2E5C8A" alt="FFTW3"/></a>
+  <a href="https://cmake.org/"><img src="https://img.shields.io/badge/CMake-%3E%3D3.25-064F8C?logo=cmake&logoColor=white" alt="CMake"/></a>
+  <a href="https://www.x.org/"><img src="https://img.shields.io/badge/X11%20%2B%20XRender-overlay%20ARGB-3B7EB1" alt="X11 + XRender"/></a>
+</p>
+
+<p align="center">
+  <strong>Bindings &amp; Tooling Python</strong><br/>
+  <a href="https://pybind11.readthedocs.io/"><img src="https://img.shields.io/badge/pybind11-m%C3%B3dulo%20lavoe__py-2C4A7C?logo=python&logoColor=white" alt="pybind11"/></a>
+  <a href="https://www.python.org/"><img src="https://img.shields.io/badge/Python-3.13-3776AB?logo=python&logoColor=white" alt="Python 3.13"/></a>
+  <a href="https://numpy.org/"><img src="https://img.shields.io/badge/NumPy-an%C3%A1lise%20espectral-013243?logo=numpy&logoColor=white" alt="NumPy"/></a>
+  <a href="https://matplotlib.org/"><img src="https://img.shields.io/badge/Matplotlib-plot%20do%20espectro-11557c?logo=matplotlib&logoColor=white" alt="Matplotlib"/></a>
+</p>
+
 Visualizador de áudio em overlay sobre o wallpaper do desktop Linux, escrito
 em **C++20 + Lua 5.4** — uma homenagem a **Héctor Lavoe** (1946–1993),
 "El Cantante", uma das grandes vozes que popularizaram a Salsa e demais
